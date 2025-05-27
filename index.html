@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sudoku - Multi-Level</title>
+    <style>
+        * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .level-selector {
+      margin: 20px 0;
+    }
+
+    .level-btn {
+      padding: 12px 24px;
+      margin: 0 10px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    .level-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .level-btn.active {
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    }
+
+    .easy.active {
+      background: #4ecdc4;
+      border-color: #4ecdc4;
+      box-shadow: 0 0 20px rgba(78, 205, 196, 0.4);
+    }
+
+    .medium.active {
+      background: #ffe66d;
+      border-color: #ffe66d;
+      color: #333;
+      box-shadow: 0 0 20px rgba(255, 230, 109, 0.4);
+    }
+
+    .hard.active {
+      background: #ff6b6b;
+      border-color: #ff6b6b;
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      font-size: 1.1em;
+    }
+
+    .stat {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #errors {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+
+    #level-display {
+      color: #4ecdc4;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      border: none;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      margin: 10px 5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .new-game-btn {
+      background: linear-gradient(45deg, #4ecdc4, #44a08d);
+      font-size: 1.1em;
+      padding: 15px 30px;
+    }
+
+    #board {
+      width: 450px;
+      height: 450px;
+      margin: 20px auto;
+      display: flex;
+      flex-wrap: wrap;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .tile {
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s ease;
+      color: #2c3e50;
+      cursor: pointer;
+    }
+
+    .tile:hover {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .tile-start {
+      background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+      color: #2c3e50;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .horizontal-line {
+      border-bottom: 3px solid rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .vertical-line {
+      border-right: 3px solid rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .revealed {
+      color: #27ae60 !important;
+      font-weight: bold;
+      background: rgba(39, 174, 96, 0.1);
+    }
+
+    #digits {
+      width: 450px;
+      margin: 20px auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .number {
+      width: 44px;
+      height: 44px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      color: white;
+      backdrop-filter: blur(5px);
+    }
+
+    .number:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .number-selected {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      color: white;
+      border-color: #ff6b6b;
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .success-message {
+      background: linear-gradient(45deg, #00b894, #00cec9);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      font-size: 1.2em;
+      font-weight: bold;
+      display: none;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+        margin: 10px;
+      }
+      #board {
+        width: 320px;
+        height: 320px;
+      }
+      .tile {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+      }
+      #digits {
+        width: 320px;
+      }
+      .number {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+      }
+      .level-btn {
+        padding: 8px 16px;
+        margin: 5px;
+        font-size: 0.9em;
+      }
+      h1 {
+        font-size: 2em;
+      }
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧩 Sudoku</h1>
+        
+        <div class="level-selector">
+            <button class="level-btn easy active" onclick="setDifficulty('easy')">Easy</button>
+            <button class="level-btn medium" onclick="setDifficulty('medium')">Medium</button>
+            <button class="level-btn hard" onclick="setDifficulty('hard')">Hard</button>
+        </div>
+
+        <div class="game-info">
+            <div class="stats">
+                <div class="stat">
+                    <span>🎯 Level:</span>
+                    <span id="level-display">Easy</span>
+                </div>
+                <div class="stat">
+                    <span>❌ Errors:</span>
+                    <span id="errors">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="success-message" id="success-message">
+            🎉 Congratulations! You solved the puzzle! 🎉
+        </div>
+
+        <div style="margin: 20px 0;">
+            <button onclick="showSolution()">💡 Show Solution</button>
+            <button onclick="hideSolution()">🔒 Hide Solution</button>
+            <button class="new-game-btn" onclick="newGame()">🎮 New Game</button>
+        </div>
+
+        <div id="board"></div>
+        <div id="digits"></div>
+    </div>
+
+    <script>
+        var numSelected = null;
+        var errors = 0;
+        var board = [];
+        var solution = [];
+        var difficulty = 'easy';
+        var cellsToRemove = { easy: 35, medium: 45, hard: 55 };
+        var filledCells = 0;
+        var totalCells = 0;
+
+        window.onload = function () {
+            generateBoard();
+            setGame();
+        };
+
+        function setDifficulty(level) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to selected button
+            event.target.classList.add('active');
+            
+            difficulty = level;
+            document.getElementById('level-display').textContent = level.charAt(0).toUpperCase() + level.slice(1);
+            
+            // Generate new board with selected difficulty
+            generateBoard();
+            setGame();
+        }
+
+        function generateBoard() {
+            // Base valid Sudoku solution
+            let base = [
+                "123456789",
+                "456789123",
+                "789123456",
+                "231645897",
+                "564897231",
+                "897231645",
+                "312564978",
+                "645978312",
+                "978312564"
+            ];
+
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+            }
+
+            function shuffleBoard(board) {
+                let newBoard = board.slice();
+                let rows = [0, 1, 2], middle = [3, 4, 5], bottom = [6, 7, 8];
+                shuffleArray(rows); shuffleArray(middle); shuffleArray(bottom);
+                let newOrder = [...rows, ...middle, ...bottom];
+                return newOrder.map(r => newBoard[r]);
+            }
+
+            // Generate solution
+            solution = shuffleBoard(base);
+
+            // Create puzzle by removing cells based on difficulty
+            board = solution.map(row => row.split(""));
+            let removeCells = cellsToRemove[difficulty];
+            let removed = 0;
+            
+            while (removed < removeCells) {
+                let r = Math.floor(Math.random() * 9);
+                let c = Math.floor(Math.random() * 9);
+                if (board[r][c] !== "-") {
+                    board[r][c] = "-";
+                    removed++;
+                }
+            }
+
+            board = board.map(row => row.join(""));
+            
+            // Count filled cells and total empty cells
+            filledCells = 0;
+            totalCells = 0;
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (board[r][c] === "-") {
+                        totalCells++;
+                    }
+                }
+            }
+            
+            // Reset errors
+            errors = 0;
+            document.getElementById("errors").innerText = errors;
+            document.getElementById("success-message").style.display = "none";
+        }
+
+        function setGame() {
+            // Clear existing board and digits
+            document.getElementById("board").innerHTML = "";
+            document.getElementById("digits").innerHTML = "";
+
+            // Create digit selector
+            for (let i = 1; i <= 9; i++) {
+                let number = document.createElement("div");
+                number.id = i;
+                number.innerText = i;
+                number.addEventListener("click", selectNumber);
+                number.classList.add("number");
+                document.getElementById("digits").appendChild(number);
+            }
+
+            // Create 9x9 board
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    let tile = document.createElement("div");
+                    tile.id = r + "-" + c;
+                    if (board[r][c] != "-") {
+                        tile.innerText = board[r][c];
+                        tile.classList.add("tile-start");
+                    }
+                    if (r == 2 || r == 5) tile.classList.add("horizontal-line");
+                    if (c == 2 || c == 5) tile.classList.add("vertical-line");
+
+                    tile.addEventListener("click", selectTile);
+                    tile.classList.add("tile");
+                    document.getElementById("board").append(tile);
+                }
+            }
+        }
+
+        function selectNumber() {
+            if (numSelected != null) {
+                numSelected.classList.remove("number-selected");
+            }
+            numSelected = this;
+            numSelected.classList.add("number-selected");
+        }
+
+        function selectTile() {
+            if (!numSelected || this.innerText !== "" || this.classList.contains("tile-start")) return;
+
+            let [r, c] = this.id.split("-").map(Number);
+
+            if (solution[r][c] == numSelected.id) {
+                this.innerText = numSelected.id;
+                this.style.color = "#2c3e50";
+                filledCells++;
+                
+                // Check if puzzle is completed
+                if (filledCells === totalCells) {
+                    document.getElementById("success-message").style.display = "block";
+                    setTimeout(() => {
+                        document.getElementById("success-message").style.display = "none";
+                    }, 5000);
+                }
+            } else {
+                errors++;
+                document.getElementById("errors").innerText = errors;
+                
+                // Add error animation
+                this.style.background = "#ff6b6b";
+                this.style.color = "white";
+                setTimeout(() => {
+                    this.style.background = "";
+                    this.style.color = "";
+                }, 500);
+            }
+        }
+
+        function showSolution() {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    let tile = document.getElementById(`${r}-${c}`);
+                    if (!tile.classList.contains("tile-start")) {
+                        tile.innerText = solution[r][c];
+                        tile.classList.add("revealed");
+                    }
+                }
+            }
+        }
+
+        function hideSolution() {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    let tile = document.getElementById(`${r}-${c}`);
+                    if (!tile.classList.contains("tile-start")) {
+                        tile.innerText = board[r][c] === "-" ? "" : board[r][c];
+                        tile.classList.remove("revealed");
+                    }
+                }
+            }
+        }
+
+        function newGame() {
+            generateBoard();
+            setGame();
+        }
+    </script>
+</body>
+</html>

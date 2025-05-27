@@ -1,0 +1,127 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 0;
+}
+
+hr {
+    width: 300px;
+    border: 1px solid #ccc;
+    margin: 10px auto;
+}
+
+h2 {
+    font-size: 1.2em;
+    color: #555;
+}
+
+#errors {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    border: none;
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+#board {
+    width: 450px;
+    height: 450px;
+    margin: 20px auto;
+    display: flex;
+    flex-wrap: wrap;
+    border: 3px solid #2c3e50;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tile {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #dcdcdc;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.tile:hover {
+    background-color: #ecf0f1;
+    cursor: pointer;
+}
+
+.tile-start {
+    background-color: #f0f0f0;
+    color: #2c3e50;
+}
+
+#digits {
+    width: 450px;
+    height: auto;
+    margin: 10px auto;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.number {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #3498db;
+    margin: 2px;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    background-color: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.number:hover {
+    background-color: #d6eaf8;
+}
+
+.number-selected {
+    background-color: #3498db;
+    color: white;
+}
+
+.horizontal-line {
+    border-bottom: 2px solid #2c3e50 !important;
+}
+
+.vertical-line {
+    border-right: 2px solid #2c3e50 !important;
+}
+
+.revealed {
+    color: #27ae60;
+    font-weight: bold;
+}
